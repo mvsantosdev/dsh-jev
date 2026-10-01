@@ -71,7 +71,7 @@ try {
     ['-e', 'process.stdout.write(require("fs").readFileSync(process.argv[1],"utf8"))', join(entry, 'cordis.patch.yml')],
     { encoding: 'utf8' }
   )
-  check('the installed patch file is readable and mounts dsh-jev', patch.includes('id: dsh-jev') && patch.includes('name: dsh-jev'))
+  check('the installed patch file is readable and mounts dsh-jev', patch.includes('id: dsh-jev') && patch.includes("name: '@mvsantosdev/dsh-jev'"))
 } catch (err) {
   check('the pack smoke test runs', false, err instanceof Error ? err.message : String(err))
 } finally {

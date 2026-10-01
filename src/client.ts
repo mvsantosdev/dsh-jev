@@ -17,7 +17,7 @@ declare const confirm: (msg: string) => boolean
 
 if (typeof window !== 'undefined' && window.__ModuleLoader__) {
   window.__ModuleLoader__.load({
-    id: 'dsh-jev',
+    id: '@mvsantosdev/dsh-jev',
     factory: (require: (id: string) => any) => {
       const module = { exports: {} as any }
       const exports = module.exports

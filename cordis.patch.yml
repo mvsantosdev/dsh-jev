@@ -1,7 +1,7 @@
 # DeepSeek Harness official bundle layer for dsh-jev
 - insert:
     - id: dsh-jev
-      name: dsh-jev
+      name: '@mvsantosdev/dsh-jev'
       config:
         client:
           apiKey: !!js process.env.TYPESAFE_API_KEY

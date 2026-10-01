@@ -87,7 +87,7 @@ test('the panel module registers itself and exposes the apply contract', () => {
 
   assert.equal(seen.length, 1, 'exactly one module registration is expected')
   const [registration] = seen
-  assert.equal(registration.id, 'dsh-jev')
+  assert.equal(registration.id, pkg.name)
   assert.equal(typeof registration.factory, 'function')
 
   // Minimal react surface: the panel only builds elements and holds state.
