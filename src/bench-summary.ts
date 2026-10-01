@@ -53,13 +53,15 @@ export function readBenchSummary(path: string = DEFAULT_BENCH_SUMMARY_PATH): Ben
 /** One-line rendering for the dashboard card. */
 export function renderBenchLine(summary: BenchSummary | undefined): string {
   if (!summary) {
-    return 'A/B 基准：暂无记录（运行 `pnpm run bench` 后写入）'
+    return 'A/B benchmark: no records yet (run `pnpm run bench` to generate)'
   }
-  const when = summary.ranAt ? summary.ranAt.replace('T', ' ').slice(0, 19) : '未知时间'
+
+  const when = summary.ranAt ? summary.ranAt.replace('T', ' ').slice(0, 19) : 'unknown time'
+
   return (
-    `A/B 基准（${summary.offline ? '离线回放' : '真实 API'} · ${when}）：` +
-    `${summary.correct}/${summary.total} 正确（准确率 ${(summary.accuracy * 100).toFixed(1)}%）、` +
-    `误报 ${summary.falsePositives}、漏报 ${summary.falseNegatives}` +
-    (typeof summary.latencyMeanMs === 'number' ? `、均值延迟 ${summary.latencyMeanMs}ms` : '')
+    `A/B benchmark (${summary.offline ? 'offline replay' : 'live API'} · ${when}): ` +
+    `${summary.correct}/${summary.total} correct (accuracy ${(summary.accuracy * 100).toFixed(1)}%), ` +
+    `false positives ${summary.falsePositives}, false negatives ${summary.falseNegatives}` +
+    (typeof summary.latencyMeanMs === 'number' ? `, mean latency ${summary.latencyMeanMs}ms` : '')
   )
 }

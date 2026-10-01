@@ -300,10 +300,8 @@ if (typeof window !== 'undefined' && window.__ModuleLoader__) {
         function toggle() {
           if (enabled === null || pending) return
           setPending(true)
-          fetch('/api/dsh-jev/stats', {
+          fetch('/api/dsh-jev/stats?enabled=' + (!enabled ? '1' : '0'), {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ enabled: !enabled }),
           })
             .then(() => load())
             .catch(() => {})
@@ -316,10 +314,10 @@ if (typeof window !== 'undefined' && window.__ModuleLoader__) {
         // rather than off bespoke class names.
         const state = !known ? 'unknown' : on ? 'checked' : 'unchecked'
         const title = !known
-          ? 'TypeSafe Jev：未能读到开关状态（宿主路由未就绪）'
+          ? 'TypeSafe Jev: unable to read toggle state (host route not ready)'
           : on
-            ? 'TypeSafe Jev 已启用：语义剪枝、技能路由、结果整形、死循环与安全拦截均生效。点击停用'
-            : 'TypeSafe Jev 已停用：不剪枝、不路由、不整形、不拦截（含确定性硬拒层）。点击启用'
+            ? 'TypeSafe Jev is enabled: semantic pruning, skill routing, result shaping, loop protection, and safety guards are active. Click to disable'
+            : 'TypeSafe Jev is disabled: no pruning, routing, shaping, or blocking (including deterministic hard-deny). Click to enable'
 
         return h(
           'span',
@@ -333,7 +331,7 @@ if (typeof window !== 'undefined' && window.__ModuleLoader__) {
               role: 'switch',
               'data-state': state,
               'aria-checked': known ? on : 'mixed',
-              'aria-label': 'TypeSafe Jev 开关',
+              'aria-label': 'TypeSafe Jev Toggle',
               className: 'jev-switch',
               title,
               onClick: toggle,
@@ -364,7 +362,7 @@ if (typeof window !== 'undefined' && window.__ModuleLoader__) {
               if (!res.ok) throw new Error(`HTTP ${res.status}`)
               const contentType = res.headers.get('content-type') || ''
               if (!contentType.includes('application/json')) {
-                throw new Error('API 服务尚未就绪，未返回有效 JSON')
+                throw new Error('API service is not ready or did not return valid JSON')
               }
               return res.json()
             })
@@ -373,7 +371,7 @@ if (typeof window !== 'undefined' && window.__ModuleLoader__) {
               setLoading(false)
             })
             .catch((err) => {
-              setError(err.message || '获取指标数据失败')
+              setError(err.message || 'Failed to fetch metrics data')
               setLoading(false)
             })
         }
@@ -385,7 +383,7 @@ if (typeof window !== 'undefined' && window.__ModuleLoader__) {
         }, [])
 
         function handleReset() {
-          if (!confirm('确定要将 TypeSafe Jev 守护指标归零吗？')) return
+          if (!confirm('Reset all TypeSafe Jev guard metrics?')) return
           setActionPending(true)
           fetch(getEndpoint(), {
             method: 'POST',
@@ -402,10 +400,10 @@ if (typeof window !== 'undefined' && window.__ModuleLoader__) {
         const totalTokens = data ? (data.toolPruner?.estimatedTokensSaved ?? 0) : 0
         const tokenSourceLabel =
           data?.toolPruner?.tokenSource === 'tokenMeter'
-            ? 'tokenMeter 口径'
+            ? 'tokenMeter'
             : data?.toolPruner?.tokenSource === 'mixed'
-              ? 'tokenMeter + 本地启发混合'
-              : '本地启发式口径'
+              ? 'tokenMeter + local heuristic'
+              : 'Local heuristic'
 
         const formattedTokens =
           totalTokens >= 1_000_000
@@ -424,14 +422,14 @@ if (typeof window !== 'undefined' && window.__ModuleLoader__) {
             h(
               'div',
               { className: 'jev-title-wrap' },
-              h('h2', { className: 'jev-title' }, '🛡️ TypeSafe Jev 守护与收益看板'),
+              h('h2', { className: 'jev-title' }, '🛡️ TypeSafe Jev Guard & Efficiency Dashboard'),
               h(
                 'p',
                 { className: 'jev-subtitle' },
-                'System One 毫秒级语义决策 · 工具剪枝 · 死循环止损 · 执行安全门禁'
+                'Millisecond System One semantic decisions · Tool pruning · Loop protection · Execution safety'
               )
             ),
-            h('span', { className: 'jev-badge' }, '● 守护中')
+            h('span', { className: 'jev-badge' }, '● Active')
           ),
 
           // Banner
@@ -441,12 +439,12 @@ if (typeof window !== 'undefined' && window.__ModuleLoader__) {
             h(
               'div',
               { className: 'jev-banner-left' },
-              h('span', { className: 'jev-banner-title' }, '累计预估节省 Token 运行开销'),
+              h('span', { className: 'jev-banner-title' }, 'Estimated Cumulative Token Savings'),
               h('span', { className: 'jev-banner-val' }, `~${formattedTokens}`),
               h(
                 'span',
                 { className: 'jev-banner-note' },
-                '💡 工具剪枝按被裁工具 Schema 实际字符精准换算；死循环熔断按避免 3~5 轮空转经验均值折算'
+                '💡 Tool pruning savings are calculated from removed schema characters; loop protection is reported separately because avoided token cost is not directly measurable'
               )
             ),
             h(
@@ -459,7 +457,7 @@ if (typeof window !== 'undefined' && window.__ModuleLoader__) {
                   onClick: loadStats,
                   disabled: loading || actionPending,
                 },
-                loading ? '刷新中…' : '刷新数据'
+                loading ? 'Refreshing…' : 'Refresh Data'
               ),
               h(
                 'button',
@@ -468,7 +466,7 @@ if (typeof window !== 'undefined' && window.__ModuleLoader__) {
                   onClick: handleReset,
                   disabled: loading || actionPending,
                 },
-                '指标归零'
+                'Reset Metrics'
               )
             )
           ),
@@ -478,7 +476,7 @@ if (typeof window !== 'undefined' && window.__ModuleLoader__) {
             ? h(
                 'div',
                 { style: { color: '#ef4444', fontSize: '12px', padding: '4px 0' } },
-                `⚠️ 提示: ${error}`
+                `⚠️ Notice: ${error}`
               )
             : null,
 
@@ -493,7 +491,7 @@ if (typeof window !== 'undefined' && window.__ModuleLoader__) {
               h(
                 'div',
                 { className: 'jev-card-head' },
-                h('span', null, '🛠️ 动态工具剪枝'),
+                h('span', null, '🛠️ Dynamic Tool Pruning'),
                 h(
                   'span',
                   { className: 'jev-metric-highlight' },
@@ -503,31 +501,31 @@ if (typeof window !== 'undefined' && window.__ModuleLoader__) {
               h(
                 'div',
                 { className: 'jev-card-metric' },
-                h('span', { className: 'jev-metric-label' }, '剪枝决策评估'),
-                h('span', { className: 'jev-metric-val' }, `${data?.toolPruner?.evaluations ?? 0} 次`)
+                h('span', { className: 'jev-metric-label' }, 'Pruning evaluations'),
+                h('span', { className: 'jev-metric-val' }, `${data?.toolPruner?.evaluations ?? 0}`)
               ),
               h(
                 'div',
                 { className: 'jev-card-metric' },
-                h('span', { className: 'jev-metric-label' }, '累计裁剪次无关工具'),
-                h('span', { className: 'jev-metric-val' }, `${data?.toolPruner?.toolsPruned ?? 0} 个`)
+                h('span', { className: 'jev-metric-label' }, 'Irrelevant tools pruned'),
+                h('span', { className: 'jev-metric-val' }, `${data?.toolPruner?.toolsPruned ?? 0}`)
               ),
               h(
                 'div',
                 { className: 'jev-card-metric' },
-                h('span', { className: 'jev-metric-label' }, '保留命中核心工具'),
-                h('span', { className: 'jev-metric-val' }, `${data?.toolPruner?.toolsRetained ?? 0} 个`)
+                h('span', { className: 'jev-metric-label' }, 'Relevant tools retained'),
+                h('span', { className: 'jev-metric-val' }, `${data?.toolPruner?.toolsRetained ?? 0}`)
               ),
               h(
                 'div',
                 { className: 'jev-card-metric' },
-                h('span', { className: 'jev-metric-label' }, '精确移除 Schema 字符'),
+                h('span', { className: 'jev-metric-label' }, 'Schema chars removed'),
                 h('span', { className: 'jev-metric-val' }, `${data?.toolPruner?.removedSchemaChars ?? 0}`)
               ),
               h(
                 'div',
                 { className: 'jev-card-metric' },
-                h('span', { className: 'jev-metric-label' }, 'Token 折算口径'),
+                h('span', { className: 'jev-metric-label' }, 'Token estimation'),
                 h('span', { className: 'jev-metric-val' }, tokenSourceLabel)
               )
             ),
@@ -539,36 +537,36 @@ if (typeof window !== 'undefined' && window.__ModuleLoader__) {
               h(
                 'div',
                 { className: 'jev-card-head' },
-                h('span', null, '🔄 死循环及早熔断'),
+                h('span', null, '🔄 Loop Protection'),
                 h(
                   'span',
                   { className: 'jev-metric-highlight' },
-                  `${data?.loopGuard?.notices ?? 0} 条提示`
+                  `${data?.loopGuard?.notices ?? 0} notices`
                 )
               ),
               h(
                 'div',
                 { className: 'jev-card-metric' },
-                h('span', { className: 'jev-metric-label' }, '循环停滞检测'),
-                h('span', { className: 'jev-metric-val' }, `${data?.loopGuard?.checks ?? 0} 次`)
+                h('span', { className: 'jev-metric-label' }, 'Loop checks'),
+                h('span', { className: 'jev-metric-val' }, `${data?.loopGuard?.checks ?? 0}`)
               ),
               h(
                 'div',
                 { className: 'jev-card-metric' },
-                h('span', { className: 'jev-metric-label' }, '阻断死循环空转'),
-                h('span', { className: 'jev-metric-val' }, `${data?.loopGuard?.interrupted ?? 0} 次`)
+                h('span', { className: 'jev-metric-label' }, 'Loops interrupted'),
+                h('span', { className: 'jev-metric-val' }, `${data?.loopGuard?.interrupted ?? 0}`)
               ),
               h(
                 'div',
                 { className: 'jev-card-metric' },
-                h('span', { className: 'jev-metric-label' }, '注入自愈警示'),
-                h('span', { className: 'jev-metric-val' }, `${data?.loopGuard?.warned ?? 0} 次`)
+                h('span', { className: 'jev-metric-label' }, 'Recovery warnings'),
+                h('span', { className: 'jev-metric-val' }, `${data?.loopGuard?.warned ?? 0}`)
               ),
               h(
                 'div',
                 { className: 'jev-card-metric' },
-                h('span', { className: 'jev-metric-label' }, '判定不可用（跳过）'),
-                h('span', { className: 'jev-metric-val' }, `${data?.loopGuard?.uncertain ?? 0} 次`)
+                h('span', { className: 'jev-metric-label' }, 'Unavailable decisions (skipped)'),
+                h('span', { className: 'jev-metric-val' }, `${data?.loopGuard?.uncertain ?? 0}`)
               )
             ),
 
@@ -579,38 +577,38 @@ if (typeof window !== 'undefined' && window.__ModuleLoader__) {
               h(
                 'div',
                 { className: 'jev-card-head' },
-                h('span', null, '🔒 执行安全护栏'),
-                h('span', { className: 'jev-metric-highlight' }, '实时门禁')
+                h('span', null, '🔒 Execution Safety Guard'),
+                h('span', { className: 'jev-metric-highlight' }, 'Real-time guard')
               ),
               h(
                 'div',
                 { className: 'jev-card-metric' },
-                h('span', { className: 'jev-metric-label' }, '敏感指令审查'),
-                h('span', { className: 'jev-metric-val' }, `${data?.safetyGuard?.screened ?? 0} 次`)
+                h('span', { className: 'jev-metric-label' }, 'Sensitive operations screened'),
+                h('span', { className: 'jev-metric-val' }, `${data?.safetyGuard?.screened ?? 0}`)
               ),
               h(
                 'div',
                 { className: 'jev-card-metric' },
-                h('span', { className: 'jev-metric-label' }, '阻断高危破坏操作'),
-                h('span', { className: 'jev-metric-val' }, `${data?.safetyGuard?.blocked ?? 0} 次`)
+                h('span', { className: 'jev-metric-label' }, 'High-risk operations blocked'),
+                h('span', { className: 'jev-metric-val' }, `${data?.safetyGuard?.blocked ?? 0}`)
               ),
               h(
                 'div',
                 { className: 'jev-card-metric' },
-                h('span', { className: 'jev-metric-label' }, '降级人工审批提醒'),
-                h('span', { className: 'jev-metric-val' }, `${data?.safetyGuard?.approvals ?? 0} 次`)
+                h('span', { className: 'jev-metric-label' }, 'Manual approval requests'),
+                h('span', { className: 'jev-metric-val' }, `${data?.safetyGuard?.approvals ?? 0}`)
               ),
               h(
                 'div',
                 { className: 'jev-card-metric' },
-                h('span', { className: 'jev-metric-label' }, '确定性拒止（0 次模型调用）'),
-                h('span', { className: 'jev-metric-val' }, `${data?.safetyGuard?.hardDenied ?? 0} 次`)
+                h('span', { className: 'jev-metric-label' }, 'Deterministic hard denials (0 model calls)'),
+                h('span', { className: 'jev-metric-val' }, `${data?.safetyGuard?.hardDenied ?? 0}`)
               ),
               h(
                 'div',
                 { className: 'jev-card-metric' },
-                h('span', { className: 'jev-metric-label' }, '判定不可用 fail-closed'),
-                h('span', { className: 'jev-metric-val' }, `${data?.safetyGuard?.uncertainDenied ?? 0} 次`)
+                h('span', { className: 'jev-metric-label' }, 'Unavailable decisions (fail-closed)'),
+                h('span', { className: 'jev-metric-val' }, `${data?.safetyGuard?.uncertainDenied ?? 0}`)
               )
             ),
 
@@ -621,7 +619,7 @@ if (typeof window !== 'undefined' && window.__ModuleLoader__) {
               h(
                 'div',
                 { className: 'jev-card-head' },
-                h('span', null, '⚡ System One 响应'),
+                h('span', null, '⚡ System One Performance'),
                 h(
                   'span',
                   { className: 'jev-metric-highlight' },
@@ -631,31 +629,31 @@ if (typeof window !== 'undefined' && window.__ModuleLoader__) {
               h(
                 'div',
                 { className: 'jev-card-metric' },
-                h('span', { className: 'jev-metric-label' }, '累计决策判定'),
-                h('span', { className: 'jev-metric-val' }, `${data?.systemOne?.totalCalls ?? 0} 次`)
+                h('span', { className: 'jev-metric-label' }, 'Total decisions'),
+                h('span', { className: 'jev-metric-val' }, `${data?.systemOne?.totalCalls ?? 0}`)
               ),
               h(
                 'div',
                 { className: 'jev-card-metric' },
-                h('span', { className: 'jev-metric-label' }, '平均毫秒延迟'),
+                h('span', { className: 'jev-metric-label' }, 'Average latency'),
                 h('span', { className: 'jev-metric-val' }, `${data?.systemOne?.avgLatencyMs ?? 0} ms`)
               ),
               h(
                 'div',
                 { className: 'jev-card-metric' },
-                h('span', { className: 'jev-metric-label' }, '异常错误数'),
-                h('span', { className: 'jev-metric-val' }, `${data?.systemOne?.errors ?? 0} 次`)
+                h('span', { className: 'jev-metric-label' }, 'Errors'),
+                h('span', { className: 'jev-metric-val' }, `${data?.systemOne?.errors ?? 0}`)
               ),
               h(
                 'div',
                 { className: 'jev-card-metric' },
-                h('span', { className: 'jev-metric-label' }, '相同载荷缓存命中'),
-                h('span', { className: 'jev-metric-val' }, `${data?.systemOne?.cacheHits ?? 0} 次`)
+                h('span', { className: 'jev-metric-label' }, 'Cache hits'),
+                h('span', { className: 'jev-metric-val' }, `${data?.systemOne?.cacheHits ?? 0}`)
               ),
               h(
                 'div',
                 { className: 'jev-card-metric' },
-                h('span', { className: 'jev-metric-label' }, '输入 token 与预估费用'),
+                h('span', { className: 'jev-metric-label' }, 'Input size & estimated cost'),
                 h(
                   'span',
                   { className: 'jev-metric-val' },
@@ -672,30 +670,30 @@ if (typeof window !== 'undefined' && window.__ModuleLoader__) {
             h(
               'div',
               { className: 'jev-card-head' },
-              h('span', null, '🧩 语义结果整形'),
+              h('span', null, '🧩 Semantic Result Shaping'),
               h(
                 'span',
                 { className: 'jev-metric-highlight' },
-                `${(((data?.resultShaper?.charsRemoved ?? 0) / 1000)).toFixed(1)}K 字符`
+                `${(((data?.resultShaper?.charsRemoved ?? 0) / 1000)).toFixed(1)}K chars`
               )
             ),
             h(
               'div',
               { className: 'jev-card-metric' },
-              h('span', { className: 'jev-metric-label' }, '整形次数'),
-              h('span', { className: 'jev-metric-val' }, `${data?.resultShaper?.shaped ?? 0} 次`)
+              h('span', { className: 'jev-metric-label' }, 'Shaping operations'),
+              h('span', { className: 'jev-metric-val' }, `${data?.resultShaper?.shaped ?? 0}`)
             ),
             h(
               'div',
               { className: 'jev-card-metric' },
-              h('span', { className: 'jev-metric-label' }, '精确移除字符'),
+              h('span', { className: 'jev-metric-label' }, 'Characters removed'),
               h('span', { className: 'jev-metric-val' }, `${data?.resultShaper?.charsRemoved ?? 0}`)
             ),
             h(
               'div',
               { className: 'jev-card-metric' },
-              h('span', { className: 'jev-metric-label' }, '启用状态'),
-              h('span', { className: 'jev-metric-val' }, (data?.resultShaper?.shaped ?? 0) > 0 ? '已启用' : '默认关闭')
+              h('span', { className: 'jev-metric-label' }, 'Status'),
+              h('span', { className: 'jev-metric-val' }, (data?.resultShaper?.shaped ?? 0) > 0 ? 'Enabled' : 'Disabled by default')
             )
           ),
 
@@ -704,7 +702,7 @@ if (typeof window !== 'undefined' && window.__ModuleLoader__) {
             ? h(
                 'div',
                 { className: 'jev-footer-note', style: { marginTop: '4px' } },
-                `A/B 基准（${data.bench.offline ? '离线回放' : '真实 API'}）：${data.bench.correct}/${data.bench.total} 正确、误报 ${data.bench.falsePositives}、漏报 ${data.bench.falseNegatives}`
+                `A/B benchmark (${data.bench.offline ? 'offline replay' : 'live API'}): ${data.bench.correct}/${data.bench.total} correct, false positives ${data.bench.falsePositives}, false negatives ${data.bench.falseNegatives}`
               )
             : null,
 
@@ -715,12 +713,12 @@ if (typeof window !== 'undefined' && window.__ModuleLoader__) {
             h(
               'span',
               null,
-              `持久化文件：~/.dsh/jev-stats.json | 起始时间：${(data?.firstRecordedAt || '').replace('T', ' ').slice(0, 19)}`
+              `Persistence file: ~/.dsh/jev-stats.json | Started at: ${(data?.firstRecordedAt || '').replace('T', ' ').slice(0, 19)}`
             ),
             h(
               'span',
               null,
-              `更新时间：${(data?.lastUpdatedAt || '').replace('T', ' ').slice(0, 19)}`
+              `Updated at: ${(data?.lastUpdatedAt || '').replace('T', ' ').slice(0, 19)}`
             )
           )
         )
@@ -750,7 +748,7 @@ if (typeof window !== 'undefined' && window.__ModuleLoader__) {
                 name: 'conversation.input.right',
                 id: 'jev-toggle',
                 order: 8,
-                label: () => 'TypeSafe Jev 开关',
+                label: () => 'TypeSafe Jev Toggle',
               },
               JevToggleButton
             )
