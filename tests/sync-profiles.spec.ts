@@ -26,7 +26,7 @@ function makeProfile(dshHome, profile) {
 function makeRepo(root) {
   mkdirSync(join(root, 'lib'), { recursive: true })
   writeFileSync(join(root, 'lib', 'index.js'), 'export const build = "new"\n', 'utf8')
-  writeFileSync(join(root, 'package.json'), '{"name":"dsh-jev","version":"0.2.0"}', 'utf8')
+  writeFileSync(join(root, 'package.json'), '{"name":"@mvsantosdev/dsh-jev","version":"0.2.0"}', 'utf8')
   writeFileSync(join(root, 'cordis.patch.yml'), 'patch\n', 'utf8')
   return root
 }
@@ -106,7 +106,7 @@ test('syncProfiles realigns the version the profile manifest declares', () => {
   const manifestPath = join(dshHome, 'profiles', 'desktop', 'package.json')
   writeFileSync(
     manifestPath,
-    JSON.stringify({ name: 'runtime', dependencies: { 'dsh-jev': '0.1.0', other: '1.0.0' } }, null, 2),
+    JSON.stringify({ name: 'runtime', dependencies: { '@mvsantosdev/dsh-jev': '0.1.0', other: '1.0.0' } }, null, 2),
     'utf8'
   )
 
@@ -115,7 +115,7 @@ test('syncProfiles realigns the version the profile manifest declares', () => {
   assert.equal(result.report[0].version, '0.2.0')
 
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
-  assert.equal(manifest.dependencies['dsh-jev'], '0.2.0', 'the declaration follows the installed version')
+  assert.equal(manifest.dependencies['@mvsantosdev/dsh-jev'], '0.2.0', 'the declaration follows the installed version')
   assert.equal(manifest.dependencies.other, '1.0.0', 'no other dependency is touched')
 })
 
@@ -125,7 +125,7 @@ test('syncProfiles leaves an already-aligned manifest alone', () => {
   makeProfile(dshHome, 'web')
 
   const manifestPath = join(dshHome, 'profiles', 'web', 'package.json')
-  const original = JSON.stringify({ dependencies: { 'dsh-jev': '0.2.0' } }, null, 2) + '\n'
+  const original = JSON.stringify({ dependencies: { '@mvsantosdev/dsh-jev': '0.2.0' } }, null, 2) + '\n'
   writeFileSync(manifestPath, original, 'utf8')
 
   const result = syncProfiles({ repoRoot: repo, dshHome })
@@ -147,11 +147,11 @@ test('syncProfiles does not rewrite the manifest during a dry run', () => {
   makeProfile(dshHome, 'tui')
 
   const manifestPath = join(dshHome, 'profiles', 'tui', 'package.json')
-  writeFileSync(manifestPath, JSON.stringify({ dependencies: { 'dsh-jev': '0.1.0' } }), 'utf8')
+  writeFileSync(manifestPath, JSON.stringify({ dependencies: { '@mvsantosdev/dsh-jev': '0.1.0' } }), 'utf8')
 
   syncProfiles({ repoRoot: repo, dshHome, dryRun: true })
   assert.equal(
-    JSON.parse(readFileSync(manifestPath, 'utf8')).dependencies['dsh-jev'],
+    JSON.parse(readFileSync(manifestPath, 'utf8')).dependencies['@mvsantosdev/dsh-jev'],
     '0.1.0',
     'a dry run must not modify the deployment'
   )

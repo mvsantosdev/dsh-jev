@@ -7,7 +7,7 @@
  * on the old build.
  *
  * Usage:
- *   node scripts/sync-profiles.js              # sync every profile that has dsh-jev
+ *   node scripts/sync-profiles.js              # sync every profile that has the package installed
  *   node scripts/sync-profiles.js --dry-run    # list what would change, touch nothing
  *   node scripts/sync-profiles.js --profile web
  *
@@ -20,7 +20,10 @@ import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-export const PLUGIN_NAME = 'dsh-jev'
+const REPO_ROOT = dirname(dirname(fileURLToPath(import.meta.url)))
+export const PLUGIN_NAME = JSON.parse(
+  readFileSync(join(REPO_ROOT, 'package.json'), 'utf8')
+).name
 
 /** Resolve the DSH home the same way the host does. */
 export function resolveDshHome(env = process.env) {
@@ -39,9 +42,10 @@ export function findInstalledPluginDirs(dshHome) {
   if (!existsSync(profilesDir)) return []
   const found = []
   for (const entry of readdirSync(profilesDir)) {
-    const candidate = join(profilesDir, entry, 'node_modules', PLUGIN_NAME)
+    const profileDir = join(profilesDir, entry)
+    const candidate = join(profileDir, 'node_modules', PLUGIN_NAME)
     try {
-      if (statSync(candidate).isDirectory()) found.push({ profile: entry, dir: candidate })
+      if (statSync(candidate).isDirectory()) found.push({ profile: entry, profileDir, dir: candidate })
     } catch {
       /* not installed in this profile */
     }
@@ -109,8 +113,7 @@ export function syncProfiles({ repoRoot, dshHome, profile, dryRun = false }) {
         copyFileSync(from, join(target.dir, file))
         written.push(file)
       }
-      // <profile>/node_modules/dsh-jev -> the manifest lives two levels up.
-      realigned = alignDeclaredVersion(dirname(dirname(target.dir)), version)
+      realigned = alignDeclaredVersion(target.profileDir, version)
     }
     report.push({ profile: target.profile, dir: target.dir, written, dryRun, version, realigned })
   }

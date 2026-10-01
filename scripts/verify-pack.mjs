@@ -4,7 +4,7 @@
  *
  * The unit suite imports `lib/` from the working tree, so nothing there proves the
  * tarball installs and resolves - a broken `main`, `types` or `exports` target would
- * only show up for a user who ran `dsh plugin add dsh-jev`.
+ * only show up for a user who ran `dsh plugin add <package-name>`.
  *
  * Usage: pnpm run verify:pack
  */
@@ -15,6 +15,13 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 const ROOT = process.cwd()
+const PACKAGE_NAME = JSON.parse(
+  execFileSync(
+    process.execPath,
+    ['-e', 'process.stdout.write(require("fs").readFileSync(process.argv[1],"utf8"))', join(ROOT, 'package.json')],
+    { encoding: 'utf8' }
+  )
+).name
 const scratch = mkdtempSync(join(tmpdir(), 'jev-pack-'))
 
 function run(command, args, options = {}) {
@@ -39,7 +46,7 @@ try {
   run('npm', ['install', '--no-save', '--no-audit', '--no-fund', '--omit=peer', tarball], { cwd: scratch })
 
   // Import it the way the host does: by package name, resolved from the install.
-  const entry = join(scratch, 'node_modules', 'dsh-jev')
+  const entry = join(scratch, 'node_modules', PACKAGE_NAME)
   const mod = await import(pathToFileURL(join(entry, 'lib', 'index.js')).href)
 
   const expected = ['apply', 'name', 'applyLoopGuard', 'applySafetyGuard', 'applyToolPruner', 'applySkillRouter', 'applyResultShaper', 'registerJevTools']

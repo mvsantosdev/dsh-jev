@@ -1,6 +1,6 @@
 {
-  "name": "dsh-jev",
-  "version": "0.2.0",
+  "name": "@mvsantosdev/dsh-jev",
+  "version": "0.2.1",
   "description": "Jev (System One decision model) plugin suite for DeepSeek Harness (dsh)",
   "type": "module",
   "main": "./lib/index.js",
@@ -84,7 +84,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zhangxaochen/dsh-jev.git"
+    "url": "git+https://github.com/mvsantosdev/dsh-jev.git"
   },
   "scripts": {
     "build": "tsc && node scripts/bundle-client.js",

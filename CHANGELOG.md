@@ -3,6 +3,17 @@
 本文件记录 dsh-jev 的行为变更。格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本遵循 [Semantic Versioning](https://semver.org/lang/zh-CN/)。
 
+## [0.2.1] - 2026-10-02
+
+### Fixed
+
+- Fixed the Jev enable/disable toggle in DeepSeek Harness Desktop by using the query-parameter form supported by the DSH fetch route.
+- Updated package tooling to support installation under the scoped npm package `@mvsantosdev/dsh-jev`.
+
+### Changed
+
+- Translated the Jev dashboard and user-facing metrics interface from Chinese to English.
+- Published fork metadata now points to `mvsantosdev/dsh-jev` while preserving the internal `dsh-jev` runtime identity and Cordis registration.
 ## [0.2.0] - 2026-09-18
 
 第一个经过标定的版本。0.1.0 的阈值是猜测值，且部分失败模式与宣称相反。

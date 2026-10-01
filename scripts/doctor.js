@@ -78,13 +78,16 @@ export function readRunningState(dshHome) {
 /** Full report over every profile that has the plugin installed. */
 export function runDoctor({ repoRoot, dshHome }) {
   const installed = findInstalledPluginDirs(dshHome)
-  const repoVersion = (() => {
+  const repoPackage = (() => {
     try {
-      return JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8')).version
+      return JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8'))
     } catch {
-      return undefined
+      return {}
     }
   })()
+
+  const repoVersion = repoPackage.version
+  const packageName = repoPackage.name
 
   const profiles = installed.map((entry) => {
     const builds = compareBuilds(repoRoot, entry.dir)
@@ -100,8 +103,10 @@ export function runDoctor({ repoRoot, dshHome }) {
     // so a stale one would silently replace the synced build with the old version.
     let declaredVersion
     try {
-      const manifest = JSON.parse(readFileSync(join(dirname(dirname(entry.dir)), 'package.json'), 'utf8'))
-      declaredVersion = manifest?.dependencies?.['dsh-jev']
+      const manifest = JSON.parse(readFileSync(join(entry.profileDir, 'package.json'), 'utf8'))
+      declaredVersion = packageName
+        ? manifest?.dependencies?.[packageName]
+        : undefined
     } catch {
       declaredVersion = undefined
     }
