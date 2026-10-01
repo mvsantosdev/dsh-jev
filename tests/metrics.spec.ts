@@ -83,9 +83,9 @@ test('MetricsCollector records measured pruning, loop, safety and call facts', (
   assert.deepEqual(reloaded.getSnapshot(), snap)
 
   const md = collector.renderMarkdownDashboard()
-  assert.ok(md.includes('TypeSafe Jev 守护与收益看板'))
-  assert.ok(md.includes('累计可测收益'))
-  assert.ok(md.includes('不做不可测的 token 折算'))
+  assert.ok(md.includes('TypeSafe Jev Guard & Efficiency Dashboard'))
+  assert.ok(md.includes('Cumulative measurable benefit'))
+  assert.ok(md.includes('avoided token cost is not directly measurable'))
 
   collector.reset()
   assert.equal(collector.getSnapshot().toolPruner.evaluations, 0)

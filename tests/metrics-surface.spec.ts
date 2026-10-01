@@ -77,10 +77,10 @@ test('the markdown dashboard reports every measured section', () => {
   collector.recordCall(120, true, { inputBytes: 900 })
 
   const markdown = collector.renderMarkdownDashboard()
-  for (const label of ['工具动态剪枝', '死循环及早止损', '执行安全护栏', '语义结果整形', 'System One 响应']) {
+  for (const label of ['Dynamic Tool Pruning', 'Loop Protection', 'Execution Safety Guard', 'Semantic Result Shaping', 'System One Performance']) {
     assert.ok(markdown.includes(label), 'dashboard row missing: ' + label)
   }
   // The row must report the recorded fact, not a placeholder.
-  assert.match(markdown, /整形 \*\*1\*\* 次，精确移除 \*\*500\*\* 字符/)
-  assert.match(markdown, /累计可测收益/)
+  assert.match(markdown, /Shaped \*\*1\*\* results and removed exactly \*\*500\*\* characters/)
+  assert.match(markdown, /Cumulative measurable benefit/)
 })

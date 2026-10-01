@@ -51,16 +51,16 @@ test('readBenchSummary normalizes a written summary', () => {
   assert.equal(summary?.offline, true)
 
   const line = renderBenchLine(summary)
-  assert.match(line, /28\/30 正确/)
-  assert.match(line, /误报 0/)
-  assert.match(line, /离线回放/)
+  assert.match(line, /28\/30 correct/)
+  assert.match(line, /false positives 0/)
+  assert.match(line, /offline replay/)
 
   rmSync(dir, { recursive: true, force: true })
 })
 
 test('renderBenchLine explains the absence instead of inventing numbers', () => {
   const line = renderBenchLine(undefined)
-  assert.match(line, /暂无记录/)
+  assert.match(line, /no records yet/)
   assert.match(line, /pnpm run bench/)
 })
 
@@ -84,5 +84,5 @@ test('the rendered bench line reports the summary it was given', () => {
 
   assert.match(line, /20\/40/, 'the ratio must come from the summary')
   assert.match(line, /50\.0%/, 'the accuracy must come from the summary')
-  assert.match(line, /真实 API/, 'an online run is labelled as such')
+  assert.match(line, /live API/, 'an online run is labelled as such')
 })
